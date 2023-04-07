@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: php
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: bitnami/php-fpm
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+        - name: nginx-data
+          mountPath: /var/www/html/
+ 
+      volumes:
+      - name: nginx-data
+        nfs:
+         server: 11.0.1.140
+         path: "/nfs"
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-svc
+  namespace: default
+spec:
+  ports:
+  - name: php
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+  selector:
+    app: php

@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-data
+          mountPath: /usr/share/nginx/html
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d/
+      volumes:
+      - name: nginx-data
+        nfs:
+         server: 11.0.1.140  #nfs server服务器IP
+         path: "/nfs"
+      - name: nginx-conf
+        configMap:
+         name: nginx-conf
+         items:
+         - key: nginx.conf
+           path: lnmp.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30010
+  selector:
+    app: nginx

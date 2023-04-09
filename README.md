@@ -29,7 +29,7 @@ exporting *:/nfs
 ## Run
 
 ```bash
-kubectl apply -f lnmp-in-k8s/*
+kubectl create -f lnmp-in-k8s/*
 ```
 
 ## Check
